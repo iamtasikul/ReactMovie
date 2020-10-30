@@ -1,37 +1,41 @@
-import React, { useState, useEffect } from 'react'
-import {API_URL,API_KEY} from "../../config";
+import { useState, useEffect } from 'react';
+import { POPULAR_BASE_URL } from '../../config';
 
+export const useHomeFetch = () => {
+  const [state, setState] = useState({ movies: [] });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-export const useHomeFetch=()=>{
+  const fetchMovies = async endpoint => {
+    setError(false);
+    setLoading(true);
 
-    const [state, setState] = useState({movies:[]});
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const isLoadMore = endpoint.search('page');
 
-    const fetchMovies=async endpoint=>{
-        setError(false);
-        setLoading(true);
+    try {
+      const result = await (await fetch(endpoint)).json();
+      setState(prev => ({
+        ...prev,
+        movies:
+          isLoadMore !== -1
+        ? [...prev.movies, ...result.results]
+        : [...result.results],
+        heroImage: prev.heroImage || result.results[0],
+        currentPage: result.page,
+        totalPages: result.total_pages
+      }))
 
-        try{
-            const result=await(await fetch(endpoint)).json();
-
-            setState(prev=>({
-                ...prev,
-                movies:[...result.results],
-                heroImage:prev.heroImage || result.results[0],
-                currentPage:result.page,
-                totalPages:result.total_pages,
-            }));
-        }catch(error){
-            setError(true);
-            console.log(error);
-        }
-        setLoading(false);
+    } catch (error) {
+      setError(true);
+      console.log(error);
     }
+    setLoading(false);
+  }
 
-    useEffect(() => {
-        fetchMovies(`${API_URL}movie/popular?api_key=${API_KEY}`);
-    }, []);
+  // Fetch popular movies initially on mount
+  useEffect(() => {
+    fetchMovies(POPULAR_BASE_URL);
+  }, [])
 
-    return [{state,loading,error},fetchMovies];
+  return [{ state, loading, error}, fetchMovies];
 }
