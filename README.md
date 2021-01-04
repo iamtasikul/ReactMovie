@@ -10,4 +10,4 @@ Movies Site Using React Js and TMDB API
 
 ### Screenshot
 
-[Screenshot](https://github.com/iamtasikul/ReactMovie/blob/main/ReactMovie.png)
+![Screenshot](https://github.com/iamtasikul/ReactMovie/blob/main/ReactMovie.png)
